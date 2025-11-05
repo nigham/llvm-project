@@ -50,7 +50,7 @@ _LIBCPP_NO_SPECIALIZATIONS inline constexpr bool is_clock_v = requires {
   requires __is_ratio_v<typename _Tp::period>;
 
   typename _Tp::duration;
-  requires _IsSame<typename _Tp::duration, duration<typename _Tp::rep, typename _Tp::period>>::value;
+  requires same_as<typename _Tp::duration, duration<typename _Tp::rep, typename _Tp::period>>;
 
   typename _Tp::time_point;
   requires __is_valid_clock_time_point_v<typename _Tp::time_point, _Tp>;
