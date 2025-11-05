@@ -56,7 +56,7 @@ _LIBCPP_NO_SPECIALIZATIONS inline constexpr bool is_clock_v = requires {
   requires __is_valid_clock_time_point_v<typename _Tp::time_point, _Tp>;
 
   _Tp::is_steady;
-  requires _IsSame<decltype(_Tp::is_steady), const bool>::value;
+  requires same_as<decltype((_Tp::is_steady)), const bool&>;
 
   _Tp::now();
   requires _IsSame<decltype(_Tp::now()), typename _Tp::time_point>::value;
