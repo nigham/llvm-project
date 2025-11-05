@@ -126,6 +126,16 @@ Constant *llvm::ConstantFoldCastInstruction(unsigned opc, Constant *V,
   if (isa<PoisonValue>(V))
     return PoisonValue::get(DestTy);
 
+  // TODO: For the following two cases, we can fold the constant to a constant
+  // according to the data layout.
+
+  // We can't fold inttoptr(0) to ConstantNullPointer.
+  if (opc == Instruction::IntToPtr && V->isZeroValue())
+    return nullptr;
+  // We can't fold ptrtoint(nullptr) to null.
+  if (opc == Instruction::PtrToInt && V->isNullValue())
+    return nullptr;
+
   if (isa<UndefValue>(V)) {
     // zext(undef) = 0, because the top bits will be zero.
     // sext(undef) = 0, because the top bits will all be the same.

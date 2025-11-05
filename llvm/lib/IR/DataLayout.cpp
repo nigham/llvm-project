@@ -193,9 +193,11 @@ constexpr DataLayout::PrimitiveSpec DefaultVectorSpecs[] = {
 };
 
 // Default pointer type specifications.
-constexpr DataLayout::PointerSpec DefaultPointerSpecs[] = {
+const DataLayout::PointerSpec DefaultPointerSpecs[] = {
     // p0:64:64:64:64
-    {0, 64, Align::Constant<8>(), Align::Constant<8>(), 64, false, false},
+    {0, 64, Align::Constant<8>(), Align::Constant<8>(), /*IndexBitWidth=*/64,
+     /*NullPtrValue=*/APInt(64, 0), /*HasUnstableRepr=*/false,
+     /*HasExternalState=*/false},
 };
 
 DataLayout::DataLayout()
@@ -461,8 +463,9 @@ Error DataLayout::parsePointerSpec(StringRef Spec) {
     return createStringError(
         "index size cannot be larger than the pointer size");
 
+  // TODO: update the spec string parser to get the correct nullptr value.
   setPointerSpec(AddrSpace, BitWidth, ABIAlign, PrefAlign, IndexBitWidth,
-                 UnstableRepr, ExternalState);
+                 APInt(BitWidth, 0), UnstableRepr, ExternalState);
   return Error::success();
 }
 
@@ -638,6 +641,7 @@ Error DataLayout::parseLayoutString(StringRef LayoutString) {
     // the spec for AS0, and we then update that to mark it non-integral.
     const PointerSpec &PS = getPointerSpec(AS);
     setPointerSpec(AS, PS.BitWidth, PS.ABIAlign, PS.PrefAlign, PS.IndexBitWidth,
+                   PS.NullPtrValue,
                    /*HasUnstableRepr=*/true, /*HasExternalState=*/false);
   }
 
@@ -686,18 +690,20 @@ DataLayout::getPointerSpec(uint32_t AddrSpace) const {
 
 void DataLayout::setPointerSpec(uint32_t AddrSpace, uint32_t BitWidth,
                                 Align ABIAlign, Align PrefAlign,
-                                uint32_t IndexBitWidth, bool HasUnstableRepr,
-                                bool HasExternalState) {
+                                uint32_t IndexBitWidth,
+                                std::optional<APInt> NullPtrValue,
+                                bool HasUnstableRepr, bool HasExternalState) {
   auto I = lower_bound(PointerSpecs, AddrSpace, LessPointerAddrSpace());
   if (I == PointerSpecs.end() || I->AddrSpace != AddrSpace) {
     PointerSpecs.insert(I, PointerSpec{AddrSpace, BitWidth, ABIAlign, PrefAlign,
-                                       IndexBitWidth, HasUnstableRepr,
-                                       HasExternalState});
+                                       IndexBitWidth, NullPtrValue,
+                                       HasUnstableRepr, HasExternalState});
   } else {
     I->BitWidth = BitWidth;
     I->ABIAlign = ABIAlign;
     I->PrefAlign = PrefAlign;
     I->IndexBitWidth = IndexBitWidth;
+    I->NullPtrValue = NullPtrValue;
     I->HasUnstableRepresentation = HasUnstableRepr;
     I->HasExternalState = HasExternalState;
   }

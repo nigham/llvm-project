@@ -1497,6 +1497,19 @@ Constant *llvm::ConstantFoldCastOperand(unsigned Opcode, Constant *C,
     llvm_unreachable("Missing case");
   case Instruction::PtrToAddr:
   case Instruction::PtrToInt:
+    // If the input is a nullptr, we can fold it to the corresponding nullptr
+    // value.
+    if (Opcode == Instruction::PtrToInt && C->isNullValue()) {
+      if (std::optional<APInt> NullPtrValue = DL.getNullPtrValue(
+              C->getType()->getScalarType()->getPointerAddressSpace())) {
+        if (NullPtrValue->isZero())
+          return Constant::getZeroValue(DestTy);
+        else if (NullPtrValue->isAllOnes())
+          return Constant::getAllOnesValue(DestTy);
+        else
+          llvm_unreachable("invalid nullptr value");
+      }
+    }
     if (auto *CE = dyn_cast<ConstantExpr>(C)) {
       Constant *FoldedValue = nullptr;
       // If the input is an inttoptr, eliminate the pair.  This requires knowing
@@ -1543,6 +1556,13 @@ Constant *llvm::ConstantFoldCastOperand(unsigned Opcode, Constant *C,
     }
     break;
   case Instruction::IntToPtr:
+    // We can fold it to a null pointer if the input is the nullptr value.
+    if (std::optional<APInt> NullPtrValue = DL.getNullPtrValue(
+            DestTy->getScalarType()->getPointerAddressSpace())) {
+      if ((NullPtrValue->isZero() && C->isZeroValue()) ||
+          (NullPtrValue->isAllOnes() && C->isAllOnesValue()))
+        return Constant::getNullValue(DestTy);
+    }
     // If the input is a ptrtoint, turn the pair into a ptr to ptr bitcast if
     // the int size is >= the ptr size and the address spaces are the same.
     // This requires knowing the width of a pointer, so it can't be done in
