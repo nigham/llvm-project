@@ -34,10 +34,10 @@ class time_point;
 
 // Helper to check that _Tp::time_point has the form time_point<_, typename _Tp::duration>.
 template <class _TimePoint, class _ClockType>
-constexpr bool __is_valid_clock_time_point_v = false;
+inline constexpr bool __is_valid_clock_time_point_v = false;
 
 template <class _TimePointClock, class _ClockType>
-constexpr bool __is_valid_clock_time_point_v<time_point<_TimePointClock, typename _ClockType::duration>, _ClockType> =
+inline constexpr bool __is_valid_clock_time_point_v<time_point<_TimePointClock, typename _ClockType::duration>, _ClockType> =
     true;
 
 // Check if a clock satisfies the Cpp17Clock requirements as defined in [time.clock.req]
