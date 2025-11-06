@@ -139,7 +139,9 @@ using RemSIOpLowering =
 using RemUIOpLowering =
     VectorConvertToLLVMPattern<arith::RemUIOp, LLVM::URemOp>;
 using SelectOpLowering =
-    VectorConvertToLLVMPattern<arith::SelectOp, LLVM::SelectOp>;
+    VectorConvertToLLVMPattern<arith::SelectOp, LLVM::SelectOp,
+                               AttrConvertPassThrough,
+                               /*FailOnUnsupportedFP=*/false>;
 using ShLIOpLowering =
     VectorConvertToLLVMPattern<arith::ShLIOp, LLVM::ShlOp,
                                arith::AttrConvertOverflowToLLVM>;
