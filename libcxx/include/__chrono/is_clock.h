@@ -35,8 +35,8 @@ template <class _TimePoint, class _ClockType>
 inline constexpr bool __is_valid_clock_time_point_v = false;
 
 template <class _TimePointClock, class _ClockType>
-inline constexpr bool __is_valid_clock_time_point_v<time_point<_TimePointClock, typename _ClockType::duration>, _ClockType> =
-    true;
+inline constexpr bool
+    __is_valid_clock_time_point_v<time_point<_TimePointClock, typename _ClockType::duration>, _ClockType> = true;
 
 // Check if a clock satisfies the Cpp17Clock requirements as defined in [time.clock.req]
 template <class _Tp>
