@@ -42,7 +42,7 @@ inline constexpr bool __is_valid_clock_time_point_v<time_point<_TimePointClock, 
 template <class _Tp>
 _LIBCPP_NO_SPECIALIZATIONS inline constexpr bool is_clock_v = requires {
   typename _Tp::rep;
-  requires is_arithmetic_v<typename _Tp::rep>;
+  requires is_arithmetic_v<typename _Tp::rep> || is_class_v<typename _Tp::rep> || is_union_v<typename _Tp::rep>;
 
   typename _Tp::period;
   requires __is_ratio_v<typename _Tp::period>;
