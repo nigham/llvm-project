@@ -11,6 +11,10 @@
 #define _LIBCPP___CHRONO_IS_CLOCK_H
 
 #include <__config>
+
+#include <__chrono/duration.h>
+#include <__chrono/time_point.h>
+#include <__concepts/same_as.h>
 #include <__type_traits/integral_constant.h>
 #include <__type_traits/is_arithmetic.h>
 #include <__type_traits/is_same.h>
@@ -25,12 +29,6 @@
 _LIBCPP_BEGIN_NAMESPACE_STD
 
 namespace chrono {
-
-template <class _Rep, class _Period>
-class duration;
-
-template <class _Clock, class _Duration>
-class time_point;
 
 // Helper to check that _Tp::time_point has the form time_point<_, typename _Tp::duration>.
 template <class _TimePoint, class _ClockType>
